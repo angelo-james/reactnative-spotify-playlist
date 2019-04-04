@@ -1,17 +1,47 @@
 import React, { Component } from 'react';
-import { StyleSheet, ScrollView, FlatList } from 'react-native';
-import { LinearGradient } from 'expo';
+import { 
+  StyleSheet, 
+  ScrollView, 
+  FlatList, 
+  View, 
+  Image, 
+  Text, 
+  TouchableOpacity 
+} from 'react-native';
+import { Font, LinearGradient } from 'expo';
 
 class App extends Component {
+  state = { fontLoaded: false };
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      'gibson-regular': require('./assets/gibson-regular.ttf'),
+      'gibson-bold': require('./assets/gibson-bold.ttf')
+    })
+
+    this.setState({ fontLoaded: true });
+  }
+
   render() {
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <LinearGradient 
-          colors={['#3f6b6b', '#121212']}
-          style={styles.header}
-        />
-        <FlatList style={styles.list} />
-      </ScrollView>
+      <View>
+        <ScrollView contentContainerStyle={styles.container}>
+          <LinearGradient 
+            colors={['#3f6b6b', '#121212']}
+            style={styles.header}
+          />
+          <FlatList style={styles.list} />
+        </ScrollView>
+        {this.state.fontLoaded ? (
+          <View style={styles.playlistDetails}>
+            <Image style={styles.playlistArt} source={{ uri: 'https://github.com/jamiemaison/hosted/blob/master/placeholder.jpg?raw=1' }} />
+
+            <Text style={styles.playlistTitle}>Playlist Name</Text>
+            <Text style={styles.playlistSubtitle}>{'BY USER • 000,000 FOLLOWERS'}</Text>
+            <TouchableOpacity style={styles.playlistButton}><Text style={styles.playlistButtonText}>SHUFFLE PLAY</Text></TouchableOpacity>
+          </View>)
+          : null}
+      </View>
     );
   }
 }
@@ -29,6 +59,47 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 800,
     backgroundColor: '#121212'
+  },
+  playlistDetails: {
+    width: '100%',
+    height: 600,
+    position: 'absolute',
+    top: 90,
+    display: 'flex',
+    alignItems: 'center'
+  },
+  playlistArt: {
+    width: 180,
+    height: 180,
+  },
+  playlistTitle: {
+    fontFamily: 'gibson-bold',
+    color: '#fff',
+    fontSize: 30,
+    marginTop: 50
+  },
+  playlistSubtitle: {
+    fontFamily: 'gibson-regular',
+    color: '#b9bdbe',
+    fontSize: 12,
+    marginTop: 15,
+    textTransform: 'uppercase'
+  },
+  playlistButton: {
+    backgroundColor: '#2ab759',
+    width: 230,
+    height: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    marginTop: 40
+  },
+  playlistButtonText: {
+    fontFamily: 'gibson-bold',
+    fontSize: 12,
+    color: '#fff',
+    letterSpacing: 2
   }
 });
 
