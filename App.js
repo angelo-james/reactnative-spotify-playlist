@@ -11,7 +11,21 @@ import {
 import { Font, LinearGradient } from 'expo';
 
 class App extends Component {
-  state = { fontLoaded: false };
+  state = { 
+    fontLoaded: false,
+    staticData: [
+      {key: '0', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '1', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '2', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '3', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '4', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '5', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '6', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '7', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '8', title: 'Title', artist: 'Artist', album: 'Album'}, 
+      {key: '9', title: 'Title', artist: 'Artist', album: 'Album'}
+    ]
+  };
 
   async componentDidMount() {
     await Font.loadAsync({
@@ -30,7 +44,16 @@ class App extends Component {
             colors={['#3f6b6b', '#121212']}
             style={styles.header}
           />
-          <FlatList style={styles.list} />
+          {this.state.fontLoaded ? (
+          <FlatList style={styles.list}
+            data={this.state.staticData}
+            renderItem={({item}) => (
+              <View style={styles.playlistItem}>
+                <Text style={styles.playlistItemTitle}>{item.title}</Text>
+                <Text style={styles.playlistItemMeta}>{`${item.artist} • ${item.album}`}</Text>
+              </View>
+            )}
+          />) : null }
         </ScrollView>
         {this.state.fontLoaded ? (
           <View style={styles.playlistDetails}>
@@ -100,6 +123,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#fff',
     letterSpacing: 2
+  },
+  playlistItem: {
+    marginLeft: 25,
+    marginBottom: 25
+  },
+  playlistItemTitle: {
+    fontFamily: 'gibson-bold',
+    fontSize: 18,
+    color: '#fff'
+  },
+  playlistItemMeta: {
+    fontFamily: 'gibson-regular',
+    color: '#b9bdbe',
+    fontSize: 15
   }
 });
 
