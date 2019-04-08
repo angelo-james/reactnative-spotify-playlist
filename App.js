@@ -9,6 +9,9 @@ import {
   TouchableOpacity 
 } from 'react-native';
 import { Font, LinearGradient } from 'expo';
+import ApolloCLient from 'apollo-boost';
+import { ApolloProvider, Query } from 'react-apollo';
+import gql from 'graphql-tag';
 
 class App extends Component {
   state = { 
