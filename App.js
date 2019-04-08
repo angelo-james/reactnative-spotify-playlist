@@ -36,10 +36,35 @@ class App extends Component {
     this.setState({ fontLoaded: true });
   }
 
+  calculatePlaylistHeight = () => {
+    if (this.state.currentScrollPos > 173) {
+      const height = 160 - (this.state.currentScrollPos - 172);
+      return height >= 0 ? height : 0;
+    }
+    return 510;
+  }
+  
+  calculateButtonPos = () => {
+    return this.state.currentScrollPos < 376 ? 1 : -this.state.currentScrollPos;
+  }
+  
+  calculateArtSize = () => {
+    return {
+      width: (185 - (this.state.currentScrollPos / 10)),
+      height: (185 - (this.state.currentScrollPos / 10)),
+      opacity: (1 - (this.state.currentScrollPos / 350))
+    }
+  }
+
   render() {
     return (
       <View>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView 
+          contentContainerStyle={styles.container}
+          onScroll={(event) => {
+            this.setState({ currentScrollPos: event.nativeEvent.contentOffset.y })
+          }}
+        >
           <LinearGradient 
             colors={['#3f6b6b', '#121212']}
             style={styles.header}
@@ -56,12 +81,15 @@ class App extends Component {
           />) : null }
         </ScrollView>
         {this.state.fontLoaded ? (
-          <View style={styles.playlistDetails}>
-            <Image style={styles.playlistArt} source={{ uri: 'https://github.com/jamiemaison/hosted/blob/master/placeholder.jpg?raw=1' }} />
+          <View 
+            style={{...styles.playlistDetails, height: this.calculatePlaylistHeight()}}
+            pointerEvents="none"
+          >
+            <Image style={this.calculateArtSize()} source={{ uri: 'https://github.com/jamiemaison/hosted/blob/master/placeholder.jpg?raw=1' }} />
 
-            <Text style={styles.playlistTitle}>Playlist Name</Text>
-            <Text style={styles.playlistSubtitle}>{'BY USER • 000,000 FOLLOWERS'}</Text>
-            <TouchableOpacity style={styles.playlistButton}><Text style={styles.playlistButtonText}>SHUFFLE PLAY</Text></TouchableOpacity>
+            {this.state.currentScrollPos < 103 ? <Text style={styles.playlistTitle}>Playlist Name</Text> : null}
+            {this.state.currentScrollPos < 53 ? <Text style={styles.playlistSubtitle}>{'BY USER • 000,000 FOLLOWERS'}</Text> : null}
+            {this.state.currentScrollPos < 28 ? (<TouchableOpacity style={{ ...styles.playlistButton, top: this.calculateButtonPos() }}><Text style={styles.playlistButtonText}>SHUFFLE PLAY</Text></TouchableOpacity>) : null }
           </View>)
           : null}
       </View>
@@ -116,7 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 100,
-    marginTop: 40
+    marginTop: 20
   },
   playlistButtonText: {
     fontFamily: 'gibson-bold',
