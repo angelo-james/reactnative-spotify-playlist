@@ -13,6 +13,10 @@ import ApolloCLient from 'apollo-boost';
 import { ApolloProvider, Query } from 'react-apollo';
 import gql from 'graphql-tag';
 
+const client = new ApolloCLient({
+  uri: 'http://localhost:4000/'
+})
+
 class App extends Component {
   state = { 
     fontLoaded: false,
@@ -61,41 +65,67 @@ class App extends Component {
 
   render() {
     return (
-      <View>
-        <ScrollView 
-          contentContainerStyle={styles.container}
-          onScroll={(event) => {
-            this.setState({ currentScrollPos: event.nativeEvent.contentOffset.y })
-          }}
+      <ApolloProvider client={client}>
+        <Query
+          query={gql`
+            {
+              playlist {
+                name
+                creator
+                followers
+                albumArt
+                songs {
+                  key
+                  title
+                  artist
+                  album
+                }
+              }
+            }
+          `}
         >
-          <LinearGradient 
-            colors={['#3f6b6b', '#121212']}
-            style={styles.header}
-          />
-          {this.state.fontLoaded ? (
-          <FlatList style={styles.list}
-            data={this.state.staticData}
-            renderItem={({item}) => (
-              <View style={styles.playlistItem}>
-                <Text style={styles.playlistItemTitle}>{item.title}</Text>
-                <Text style={styles.playlistItemMeta}>{`${item.artist} • ${item.album}`}</Text>
-              </View>
-            )}
-          />) : null }
-        </ScrollView>
-        {this.state.fontLoaded ? (
-          <View 
-            style={{...styles.playlistDetails, height: this.calculatePlaylistHeight()}}
-            pointerEvents="none"
-          >
-            <Image style={this.calculateArtSize()} source={{ uri: 'https://github.com/jamiemaison/hosted/blob/master/placeholder.jpg?raw=1' }} />
+          {({ loading, error, data }) => {
+            if (loading || error) return <View />
+            return <View>
+          
+            <ScrollView 
+              contentContainerStyle={styles.container}
+              onScroll={(event) => {
+                this.setState({ currentScrollPos: event.nativeEvent.contentOffset.y })
+              }}
+            >
+              <LinearGradient 
+                colors={['#3f6b6b', '#121212']}
+                style={styles.header}
+              />
+              {this.state.fontLoaded ? (
+              <FlatList style={styles.list}
+                data={data.playlist.songs}
+                renderItem={({item}) => (
+                  <View style={styles.playlistItem}>
+                    <Text style={styles.playlistItemTitle}>{item.title}</Text>
+                    <Text style={styles.playlistItemMeta}>{`${item.artist} • ${item.album}`}</Text>
+                  </View>
+                )}
+              />) : null }
+            </ScrollView>
+            {this.state.fontLoaded ? (
+              <View 
+                style={{...styles.playlistDetails, height: this.calculatePlaylistHeight()}}
+                pointerEvents="none"
+              >
+                <Image style={this.calculateArtSize()} source={{ uri: data.playlist.albumArt }} />
 
-            {this.state.currentScrollPos < 103 ? <Text style={styles.playlistTitle}>Playlist Name</Text> : null}
-            {this.state.currentScrollPos < 53 ? <Text style={styles.playlistSubtitle}>{'BY USER • 000,000 FOLLOWERS'}</Text> : null}
-            {this.state.currentScrollPos < 28 ? (<TouchableOpacity style={{ ...styles.playlistButton, top: this.calculateButtonPos() }}><Text style={styles.playlistButtonText}>SHUFFLE PLAY</Text></TouchableOpacity>) : null }
-          </View>)
-          : null}
-      </View>
+                {this.state.currentScrollPos < 103 ? <Text style={styles.playlistTitle}>{data.playlist.name}</Text> : null}
+                {this.state.currentScrollPos < 53 ? <Text style={styles.playlistSubtitle}>`BY {data.playlist.creator} • {data.playlist.followers}`</Text> : null}
+                {this.state.currentScrollPos < 28 ? (<TouchableOpacity style={{ ...styles.playlistButton, top: this.calculateButtonPos() }}><Text style={styles.playlistButtonText}>SHUFFLE PLAY</Text></TouchableOpacity>) : null }
+              </View>)
+              : null}
+          </View>
+          }}
+        </Query>
+      </ApolloProvider>
+
     );
   }
 }
